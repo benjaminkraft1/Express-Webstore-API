@@ -1,0 +1,16 @@
+{
+    "dev": {
+      "driver": "pg",
+      "host": "127.0.0.1",
+      "database": "webstore",
+      "user": "webstore_user",
+      "password": "webstore_pass"
+    },
+    "test": {
+      "driver": "pg",
+      "host": "127.0.0.1",
+      "database": "webstore_test",
+      "user": "webstore_user",
+      "password": "webstore_pass"
+    }
+  }
