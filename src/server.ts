@@ -1,30 +1,38 @@
 import express from 'express';
-import { routes } from './backend/routes';
-import bodyParser from 'body-parser'
+// import { routes } from './backend/routes';
+import bodyParser from 'body-parser';
 import logger from './utilities/logger';
 
-const app: express.Application = express()
+import { orderRoutes } from './backend/handler/orders';
+import { productRoutes } from './backend/handler/products';
+import { userRoutes } from './backend/handler/users';
+
+const app: express.Application = express();
 
 // Setup port to 3000
 const port = 3000;
 
 // Start server
 app.listen(port, () => {
-    console.log(`Webstore Server started at localhost:${port}`);
-  });
+  console.log(`Webstore Server started at localhost:${port}`);
+});
 
-// app.use(bodyParser.json())
-
-app.get('/', function (req: express.Request, res: express.Response) {
-    res.send('Hello World!')
-})
-
-// Use router defined in another file
-//app.use('/api', routes);
+app.get('/', function(req: express.Request, res: express.Response) {
+  res.send('Hello World!');
+});
 
 
 app.use(express.json());
+app.use(express.urlencoded({
+  extended: true
+}));
+
 // console log all requests
 app.use(logger);
-// set routes
-routes(app);
+
+orderRoutes(app);
+productRoutes(app);
+userRoutes(app);
+
+
+

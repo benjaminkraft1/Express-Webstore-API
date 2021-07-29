@@ -2,7 +2,7 @@
     "dev": {
       "driver": "pg",
       "host": "127.0.0.1",
-      "database": "webstore",
+      "database": "webstore_db",
       "user": "webstore_user",
       "password": "webstore_pass"
     },
@@ -14,3 +14,4 @@
       "password": "webstore_pass"
     }
   }
+  

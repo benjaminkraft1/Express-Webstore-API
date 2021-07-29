@@ -1,99 +1,96 @@
-import { PoolClient, QueryResult } from 'pg';
-import pool from '../database';
+import Client from '../database';
 
-export type ProductType {
-    name: string;
-    price: string;
-    category: string;
-}
+export type Product = {
+  name: string;
+  price: number;
+  category: string;
+};
 
-export type ProductReturnType {
-    id: number;
-    name: string;
-    price: string;
-    category: string;
-}
-
-export class Product {
+export class ProductStore {
   // define table
   table: string = 'products';
 
-  // select all products
-  async getProducts(): Promise<ProductReturnType[]> {
+  async getProducts(): Promise<Product[]> {
     try {
-      const conn: PoolClient = await pool.connect();
-      const sql: string = `SELECT * FROM ${this.table}`;
-      const result: QueryResult = await conn.query(sql);
+      // @ts-ignore
+      const conn = await Client.connect();
+      const sql = `SELECT * FROM ${this.table}`;
+
+      const result = await conn.query(sql);
+
       conn.release();
 
       return result.rows;
     } catch (err) {
-      throw new Error(`Could not get all products. Error: ${err}`);
+      throw new Error(`Could not get products. Error: ${err}`);
     }
   }
 
-  // select product by id
-  async getProductById(productId: number): Promise<ProductReturnType> {
+  async getProductById(id: number): Promise<Product> {
     try {
-      const conn: PoolClient = await pool.connect();
-      const sql: string = `SELECT * FROM ${this.table} WHERE id=$1`;
-      const result: QueryResult = await conn.query(sql, [productId]);
+      const sql = `SELECT * FROM ${this.table} WHERE id=($1)`;
+      // @ts-ignore
+      const conn = await Client.connect();
+
+      const result = await conn.query(sql, [id]);
+
       conn.release();
 
       return result.rows[0];
     } catch (err) {
-      throw new Error(`Could not get product by id. Error: ${err}`);
+      throw new Error(`Could not find product ${id}. Error: ${err}`);
     }
   }
 
-  // select product by category
-  async getProductByCat(category: string): Promise<ProductReturnType[]> {
+  async getProductsByCat(cat: string): Promise<Product[]> {
     try {
-      const conn: PoolClient = await pool.connect();
-      const sql: string = `SELECT * FROM ${this.table} WHERE category=$1`;
-      const result: QueryResult = await conn.query(sql, [category]);
-      conn.release();
+      const sql = `SELECT * FROM ${this.table} WHERE category=($1)`;
+      // @ts-ignore
+      const conn = await Client.connect();
 
-      return result.rows;
-    } catch (err) {
-      throw new Error(
-        `Could not get product by category. Error: ${err}`
-      );
-    }
-  }
+      const result = await conn.query(sql, [cat]);
 
-  // create product
-  async createProduct(product: ProductType): Promise<ProductReturnType> {
-    try {
-      const { name, price, category } = product;
-      const sql: string = `INSERT INTO ${this.table} (name, price, category) VALUES($1, $2, $3) RETURNING *`;
-      const conn: PoolClient = await pool.connect();
-      const result: QueryResult = await conn.query(sql, [
-        name,
-        price,
-        category
-      ]);
       conn.release();
 
       return result.rows[0];
     } catch (err) {
-      throw new Error(`Could not create product. Error: ${err}`);
+      throw new Error(`Could not find products for ${cat}. Error: ${err}`);
     }
   }
 
-  // delete product
-  async deleteProduct(id: number): Promise<ProductReturnType> {
+  async create(p: Product): Promise<Product> {
     try {
-      const sql: string = `DELETE FROM ${this.table} WHERE id=$1 RETURNING *`;
-      const conn: PoolClient = await pool.connect();
-      const result: QueryResult = await conn.query(sql, [id]);
+      const sql = `INSERT INTO ${this.table} (name, price, category) VALUES($1, $2, $3) RETURNING *`;
+      // @ts-ignore
+      const conn = await Client.connect();
+
+      const result = await conn.query(sql, [p.name, p.price, p.category]);
+
+      const product = result.rows[0];
+
       conn.release();
 
-      return result.rows[0];
+      return product;
     } catch (err) {
-      throw new Error(
-        `Could not delete product ${id}. Error: ${err}`
-      );
+      throw new Error(`Could not add new product ${p.name}. Error: ${err}`);
+    }
+  }
+
+  async delete(id: number): Promise<Product> {
+    try {
+      const sql = `DELETE FROM ${this.table} WHERE id=($1)`;
+      // @ts-ignore
+      const conn = await Client.connect();
+
+      const result = await conn.query(sql, [id]);
+
+      const product = result.rows[0];
+
+      conn.release();
+
+      return product;
+    } catch (err) {
+      throw new Error(`Could not delete product ${id}. Error: ${err}`);
     }
   }
 }
