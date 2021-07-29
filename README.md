@@ -92,8 +92,8 @@ To activate the Environment call `source ena.sh`
 Use `sudo -u postgres psql template1` to open up the postgres-command prompt and insert the following
 
 ```sql
-  
   CREATE DATABASE webstore_db;
+  CREATE DATABASE  webstore_test;
   CREATE ROLE webstore_user WITH LOGIN PASSWORD 'webstore_pass'; 
   ALTER ROLE webstore_user SET client_encoding TO 'utf8';
   ALTER ROLE webstore_user SET default_transaction_isolation TO 'read committed';
@@ -101,6 +101,7 @@ Use `sudo -u postgres psql template1` to open up the postgres-command prompt and
 
 
   GRANT ALL PRIVILEGES ON DATABASE webstore_db TO webstore_user;
+  GRANT ALL PRIVILEGES ON DATABASE webstore_test TO webstore_user;
   ALTER USER webstore_user CREATEDB;
 ```
 
@@ -108,14 +109,7 @@ Use `sudo -u postgres psql template1` to open up the postgres-command prompt and
 Migrate the Database using:
 
 ```
-python manage.py migrate
-```
-
-## Create django super user
-Create a super user to get access from the endpoints requiring permission. 
-
-```
-python manage.py createsuperuser --username admin
+db-migrate up
 ```
 
 ## Unittests
@@ -127,156 +121,77 @@ $ ./manage.py test
 # Run the server
 start server
 ```
-$ ./manage.py runserver
+$ npm run start
 ```
 
 # API
-Some API endpoints offer filter and search possibilities. 
-Filtering is done using django filter backend: 
-`https://www.django-rest-framework.org/api-guide/filtering/#djangofilterbackend`
-Search Filters: 
-`https://www.django-rest-framework.org/api-guide/filtering/#searchfilter`
-Results can be ordered using Ordering Filters: 
-`https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter`
-
-### Permissions
-https://www.django-rest-framework.org/api-guide/permissions/#djangomodelpermissions
-
-Endpoint | read | write |
---- | --- | --- | 
-api/user | `user.is_staff` is `True` | `user.is_staff` is `True` |
-api/group | `user.is_staff` is `True` | `user.is_staff` is `True` |
-api/products | `AllowAny` | `user.is_staff` is `True` |
-api/categories | `AllowAny` | `user.is_staff` is `True` |
-api/orders | `only for current user` OR all if `user.is_staff` is `True` | `user.is_staff` is `True` |
 
 ## Users
-If the currently logged in user has permissions (`user.is_staff` is `True`), this endpoint returns a list of users.
-Authentication can be done by login or token (see below).
-```
-http://localhost:8000/api/groups/
-```
 
-### Filter and Search Options
-You can search for specific fields in the user list. Search filters are activated for `name` and `email` and will use case-insensitive partial matches.
+Show All Users [TOKEN REQUIRED]
+```
+GET http://localhost:3000/user/
+```
+Show User by ID [TOKEN REQUIRED]
+```
+GET http://localhost:3000/user/:id
+curl -X POST -H "Content-Type: application/json" -d '{"username": "USERNAME", "password": "PASSWORD"}' http://localhost:3000/api/token/
+```
+Create User [TOKEN REQUIRED]
+```
+POST http://localhost:3000/user/
 
-Example:
+curl -X POST -H "Content-Type: application/json" -d '{
+  "first_name": "first",
+  "last_name": "last",
+  "username": "test category",
+  "password": "xxxxx"
+  }'  http://localhost:3000/user/ 
+  --header "authorization: eyJhbGciOiJIUzI1NiJ9.MTI.xpcDRUukiWvZQC2IBy-3Lj4dzVnf_B2CydCsqnf4ItU"
 ```
-http://localhost:8000/api/users/?search=john
+Delete User [TOKEN REQUIRED]
 ```
+DELETE http://localhost:3000/user/:id
 
-### Ordering
-The Users Endpoint give the posibility to order results by the fields `name`, `email` and `groups`. Per default, users are ordered by `name`.
-
-Example:
-```
-http://localhost:8000/api/users/?ordering=username
-```
-
-## Groups
-If the currently logged in user has permissions (`user.is_staff` is `True`), this endpoint returns a list of user groups.
-Authentication can be done by login or token (see below).
-```
-http://localhost:8000/api/groups/
+curl -X DELETE -H "Content-Type: application/json" http://localhost:3000/user/10 --header "authorization: eyJhbGciOiJIUzI1NiJ9.MTI.xpcDRUukiWvZQC2IBy-3Lj4dzVnf_B2CydCsqnf4ItU"
 ```
 
 ## Products
 The Products endpoint can be accessed by any user (logged in or not). Writing access requires special permissions (`user.is_staff` is `True`).
+
+Show All Products
 ```
-http://localhost:8000/api/products/
+GET http://localhost:3000/products/
+```
+Show Product by ID
+```
+GET http://localhost:3000/products/:id
+```
+Show Products by Category
+```
+GET http://localhost:3000/products/:category
+```
+Add Product [TOKEN REQUIRED]
+```
+POST http://localhost:3000/products/
+```
+Delete Product [TOKEN REQUIRED]
+```
+http://localhost:3000/products/:id
 ```
 
-### Filter and Search Options
-You can search for specific fields in the user list. Search filters are activated for `name` and `category_id` and will use case-insensitive partial matches.
-Example:
-```
-http://localhost:8000/api/products/?name=Apple
-http://localhost:8000/api/products/?category_id=1
-```
-
-## Categories
-The Categories endpoint can be accessed by any user (logged in or not). Writing access requires special permissions (`user.is_staff` is `True`).
-```
-http://localhost:8000/api/categories/
-```
 
 ## Orders
-Users can access their orders if they are logged in. If `user.is_staff` is `True` (admin), all orders are displayed.
-```
-http://localhost:8000/api/orders/
-```
 
-### Filter Orders by user
-Example:
-```
-http://localhost:8000/api/orders/?user_id=3
-http://localhost:8000/api/orders/?complete=true
-```
+{
+    "product_id": "2",
+    "quantity": 2,
+    "user_id": 4
+}
 
 
 # JSON Web Token Authentication
-JSON Web Token is a fairly new standard which can be used for token-based authentication. Unlike the django REST framework built-in TokenAuthentication scheme, JWT Authentication doesn't need to use a database to validate a token. A package for JWT authentication is `djangorestframework-simplejwt` which provides some features as well as a pluggable token blacklist app. https://django-rest-framework-simplejwt.readthedocs.io/en/latest/index.html
+The token is returned when adding a new user in the response.
 
-## Usage
-### Obtain Token
-Hint(If you have not created a user yet, create a django super user)
-To obtain a token for a user you can use the following API Endpoint
-```
-http://localhost:8000/api/token/
-```
-or use curl
-```
-curl -X POST -H "Content-Type: application/json" -d '{"username": "USERNAME", "password": "PASSWORD"}' http://localhost:8000/api/token/
-
-```
-
-response:
-```
-{"refresh":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY1NzcxOTAxMSwianRpIjoiOGM5MDQyZjQ0YTM5NDQxNDlkZWYwOTM5NmZkZDkzMzkiLCJ1c2VyX2lkIjoxfQ._YirlQj0GBYCUL14ro1ASZ1sd7u5TDvE8GQSc7wDKsc","access":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjU3NzE5MDExLCJqdGkiOiJhMWUwMGI5OWMxZGM0ZWUwYWFlMWVhNWFmOTVkMjA2NCIsInVzZXJfaWQiOjF9.GbeDWAgJ00BnyEFKIPOzWc7rYIOcSITgqfRSK-n8K_4"}
-```
-
-### Refresh Token
-```
-curl \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"refresh":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY1NzcxOTAxMSwianRpIjoiOGM5MDQyZjQ0YTM5NDQxNDlkZWYwOTM5NmZkZDkzMzkiLCJ1c2VyX2lkIjoxfQ._YirlQj0GBYCUL14ro1ASZ1sd7u5TDvE8GQSc7wDKsc"}' \
-  http://localhost:8000/api/token/refresh/
-```
-
-
-### Test without Authorization header
-```
-curl -X GET http://localhost:8000/api/users/ -H "Content-Type: application/json"
-```
-
-response:
-```
-HTTP/1.1 401 Unauthorized
-Server: SimpleHTTP/0.6 Python/3.6.9
-Date: Tue, 13 Jul 2021 13:25:47 GMT
-Date: Tue, 13 Jul 2021 13:25:47 GMT
-Server: WSGIServer/0.2 CPython/3.6.9
-Content-Type: application/json
-WWW-Authenticate: Basic realm="api"
-Vary: Accept, Cookie
-Allow: GET, POST, HEAD, OPTIONS
-X-Frame-Options: DENY
-Content-Length: 58
-X-Content-Type-Options: nosniff
-Referrer-Policy: same-origin
-
-{"detail":"Authentication credentials were not provided."}
-```
-
-### Test with Authorization header
-```
-curl -X GET http://localhost:8000/api/users/ -H "Content-Type: application/json" -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjU3NzE5MDExLCJqdGkiOiJhMWUwMGI5OWMxZGM0ZWUwYWFlMWVhNWFmOTVkMjA2NCIsInVzZXJfaWQiOjF9.GbeDWAgJ00BnyEFKIPOzWc7rYIOcSITgqfRSK-n8K_4" 
-
-```
-
-response:
-```
-{"count":3,"next":null,"previous":null,"results":[{"url":"http://localhost:8000/api/users/1/","username":"admin","email":"","groups":[]}, ...]}
-```
+To access endpoints requiring a token, the token needs to be embedded into the header.
 

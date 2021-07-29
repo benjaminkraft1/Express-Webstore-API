@@ -1,6 +1,6 @@
 import express, { Response, Request } from 'express';
 import { Product, ProductStore } from '../models/product_model';
-import { authToken } from '../../utilities/auth';
+import { authToken } from '../utilities/auth';
 
 /******************************************************** */
 // Express Routes

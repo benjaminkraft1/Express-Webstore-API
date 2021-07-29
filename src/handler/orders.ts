@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { authToken } from '../../utilities/auth';
+import { authToken } from '../utilities/auth';
 import { Order, OrderStore } from '../models/order_model';
 
 /******************************************************** */

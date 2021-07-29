@@ -23,8 +23,9 @@ if (ENV === 'test') {
     user: POSTGRES_USER,
     password: POSTGRES_PASSWORD
   });
-} else {
-  // Use dev as default
+}
+
+if(ENV === 'dev') {
   client = new Pool({
     host: POSTGRES_HOST,
     database: POSTGRES_DB,
@@ -33,4 +34,5 @@ if (ENV === 'test') {
   });
 }
 
+// @ts-ignore
 export default client;

@@ -1,12 +1,19 @@
 import bcrypt from 'bcrypt';
 import Client from '../database';
-import { generateToken } from '../../utilities/auth';
+import { generateToken } from '../utilities/auth';
 
 export type User = {
   first_name: string;
   last_name: string;
   username: string;
   password: string;
+};
+
+export type UserCreated = {
+  first_name: string;
+  last_name: string;
+  username: string;
+  id: number;
   token: string;
 };
 
@@ -43,7 +50,7 @@ export class UserStore {
   }
 
   // create a user
-  async createUser(user: User): Promise<string> {
+  async createUser(user: User): Promise<UserCreated> {
     try {
       const { first_name, last_name, username, password } = user;
       const pepper: string = process.env.BCRYPT_PASSWORD as string;
@@ -62,7 +69,16 @@ export class UserStore {
 
       const id: number = result.rows[0].id;
       const token: string = generateToken(id);
-      return token;
+
+      const return_value: UserCreated = {
+        first_name: first_name,
+        last_name: last_name,
+        username: username,
+        token: hash,
+        id: id
+        };
+
+      return return_value;
     } catch (err) {
       throw new Error(`Could not create user. Error: ${err}`);
     }

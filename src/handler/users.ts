@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
-import { User, UserStore } from '../models/user_model';
-import { authToken } from '../../utilities/auth';
+import { User, UserCreated, UserStore } from '../models/user_model';
+import { authToken } from '../utilities/auth';
 
 /******************************************************** */
 // Express Routes
@@ -34,7 +34,8 @@ const show = async (_req: Request, res: Response) => {
 
 // Create user
 const createUser = async (_req: Request, res: Response) => {
-  const token: string = await user.createUser(_req.body);
+  const user_respone: UserCreated = await user.createUser(_req.body);
+  const token: string = user_respone.token;
   return res.json(token);
 };
 

@@ -3,9 +3,9 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import logger from './utilities/logger';
 
-import { orderRoutes } from './backend/handler/orders';
-import { productRoutes } from './backend/handler/products';
-import { userRoutes } from './backend/handler/users';
+import { orderRoutes } from './handler/orders';
+import { productRoutes } from './handler/products';
+import { userRoutes } from './handler/users';
 
 const app: express.Application = express();
 
