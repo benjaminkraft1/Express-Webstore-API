@@ -52,13 +52,13 @@ export class ProductStore {
 
       conn.release();
 
-      return result.rows[0];
+      return result.rows;
     } catch (err) {
       throw new Error(`Could not find products for ${cat}. Error: ${err}`);
     }
   }
 
-  async create(p: Product): Promise<Product> {
+  async createProduct(p: Product): Promise<Product> {
     try {
       const sql = `INSERT INTO ${this.table} (name, price, category) VALUES($1, $2, $3) RETURNING *`;
       // @ts-ignore
@@ -76,7 +76,7 @@ export class ProductStore {
     }
   }
 
-  async delete(id: number): Promise<Product> {
+  async deleteProduct(id: number): Promise<Product> {
     try {
       const sql = `DELETE FROM ${this.table} WHERE id=($1)`;
       // @ts-ignore

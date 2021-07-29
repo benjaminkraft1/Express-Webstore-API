@@ -1,5 +1,4 @@
-import { User, UserStore } from '../user_model';
-import jsonwebtoken from 'jsonwebtoken';
+import { UserStore } from '../user_model';
 
 /******************************************************** */
 // Handler
