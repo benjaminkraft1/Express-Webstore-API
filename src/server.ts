@@ -21,11 +21,12 @@ app.get('/', function(req: express.Request, res: express.Response) {
   res.send('Hello World!');
 });
 
-
 app.use(express.json());
-app.use(express.urlencoded({
-  extended: true
-}));
+app.use(
+  express.urlencoded({
+    extended: true
+  })
+);
 
 // console log all requests
 app.use(logger);
@@ -33,6 +34,3 @@ app.use(logger);
 orderRoutes(app);
 productRoutes(app);
 userRoutes(app);
-
-
-

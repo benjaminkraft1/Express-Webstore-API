@@ -7,14 +7,12 @@ import { Order, OrderStore } from '../models/order_model';
 /******************************************************** */
 export const orderRoutes = (app: express.Application) => {
   // Get Orders by user id
-  app.get('/orders/current/:user_id', authToken, current_order_by_user_id);
-  app.get('/orders/completed/:user_id', authToken, completed_orders_by_user_id);
-
-  app.post('/orders/', authToken, create);
-  // add product
-  //app.post('/orders/', addProduct);
-  //app.delete('/orders/:id', authToken, )
-
+  app.get('/current_orders/:user_id', authToken, currentOrderByUserId);
+  app.get('/completed_orders/:user_id', authToken, completedOrdersByUserId);
+  // Create new order
+  app.post('/orders/', authToken, createOrder);
+  // Delete order by id
+  app.delete('/orders/:id', authToken, deleteOrder);
 };
 
 /******************************************************** */
@@ -23,29 +21,34 @@ export const orderRoutes = (app: express.Application) => {
 const order = new OrderStore();
 
 // Get Orders by id
-const current_order_by_user_id = async (_req: Request, res: Response) => {
-  const Id: number = parseInt(_req.params.id);
-  const currentOrder: Order = await order.getCurrentOrderByUserId(Id);
+const currentOrderByUserId = async (_req: Request, res: Response) => {
+  const userId: number = parseInt(_req.params.user_id);
+  const currentOrder: Order = await order.getCurrentOrderByUserId(userId);
   return res.json(currentOrder);
 };
 
 // Get Orders by user id
-const completed_orders_by_user_id = async (_req: Request, res: Response) => {
+const completedOrdersByUserId = async (_req: Request, res: Response) => {
   const userId: number = parseInt(_req.params.user_id);
-  const completedOrder: Order[] = await order.getCompletedOrdersByUserId(userId);
+  const completedOrder: Order[] = await order.getCompletedOrdersByUserId(
+    userId
+  );
   return res.json(completedOrder);
 };
 
-const create = async (_req: Request, res: Response) => {
+const createOrder = async (_req: Request, res: Response) => {
   const new_order: Order = {
-    user_id: _req.body.userId,
+    user_id: _req.body.user_id,
     status: 'active',
     product_id: _req.body.product_id,
     quantity: _req.body.quantity
   };
 
   try {
+    console.log(new_order);
+
     const newOrder = await order.createOrder(new_order);
+
     res.json(newOrder);
   } catch (err) {
     res.status(400);
@@ -53,20 +56,9 @@ const create = async (_req: Request, res: Response) => {
   }
 };
 
-/*
-const addProduct = async (_req: Request, res: Response) => {
-  const orderId: string = _req.params.id;
-  const productId: string = _req.body.productId;
-  const quantity: number = parseInt(_req.body.quantity);
-
-  try {
-    const addedProduct = await order.addProduct(quantity, orderId, productId);
-    res.json(addProduct);
-  } catch (err) {
-    res.status(400);
-    res.json(err);
-  }
+// Delete order by id
+const deleteOrder = async (_req: Request, res: Response) => {
+  const id: number = parseInt(_req.params.id);
+  const deletedOrder = await order.deleteOrder(id);
+  return res.json(deletedOrder);
 };
-
-*/
-

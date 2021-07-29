@@ -45,29 +45,28 @@ export class UserStore {
   // create a user
   async createUser(user: User): Promise<string> {
     try {
-        
       const { first_name, last_name, username, password } = user;
       const pepper: string = process.env.BCRYPT_PASSWORD as string;
       const salt: string = process.env.SALT_ROUNDS as string;
 
-      const hash: string = bcrypt.hashSync(
-        password + pepper,
-        parseInt(salt)
-      );
+      const hash: string = bcrypt.hashSync(password + pepper, parseInt(salt));
       const conn = await Client.connect();
       const sql = `INSERT INTO ${this.table} (first_name, last_name, username, password) VALUES($1, $2, $3, $4) RETURNING *`;
-      const result = await conn.query(sql, [first_name, last_name, username, hash]);
+      const result = await conn.query(sql, [
+        first_name,
+        last_name,
+        username,
+        hash
+      ]);
       conn.release();
 
       const id: number = result.rows[0].id;
       const token: string = generateToken(id);
       return token;
-
     } catch (err) {
       throw new Error(`Could not create user. Error: ${err}`);
     }
   }
-
 
   // delete user
   async deleteUser(id: number): Promise<User> {

@@ -1,5 +1,4 @@
 import Client from '../database';
-import { Pool } from 'pg';
 
 export type Order = {
   product_id: number;
@@ -58,6 +57,8 @@ export class OrderStore {
         status
       ]);
       conn.release();
+
+      console.log(result.rows);
 
       return result.rows[0];
     } catch (err) {

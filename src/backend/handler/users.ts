@@ -6,10 +6,10 @@ import { authToken } from '../../utilities/auth';
 // Express Routes
 /******************************************************** */
 export const userRoutes = (app: express.Application) => {
-  app.get('/user/', index);
-  app.get('/user/:id', show);
+  app.get('/user/', authToken, index);
+  app.get('/user/:id', authToken, show);
   // add user
-  app.post('/user/', createUser);
+  app.post('/user/', authToken, createUser);
   // delete user
   app.delete('/user/:id', authToken, deleteUser);
 };

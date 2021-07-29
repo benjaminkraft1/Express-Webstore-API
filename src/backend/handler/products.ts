@@ -36,20 +36,22 @@ const show = async (_req: Request, res: Response) => {
 // Get products by category
 const show_by_cat = async (_req: Request, res: Response) => {
   const category: string = String(_req.params.category);
-  const productByCat: Product[] = await product_store.getProductsByCat(category);
+  const productByCat: Product[] = await product_store.getProductsByCat(
+    category
+  );
   return res.json(productByCat);
 };
 
 // Create product
 const create = async (_req: Request, res: Response) => {
   const createdProduct: Product = await product_store.create(_req.body);
-  console.log(_req.body)
+  console.log(_req.body);
   return res.json(createdProduct);
 };
 
 // Delete product by id
 const deleteProduct = async (_req: Request, res: Response) => {
   const id: number = parseInt(_req.params.id);
-  const deletedOrder = await product_store.delete(id);
-  return res.json(deletedOrder);
+  const deletedProduct = await product_store.delete(id);
+  return res.json(deletedProduct);
 };
