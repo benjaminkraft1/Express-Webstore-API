@@ -34,3 +34,6 @@ app.use(logger);
 orderRoutes(app);
 productRoutes(app);
 userRoutes(app);
+
+// export app for unit test
+export default app;

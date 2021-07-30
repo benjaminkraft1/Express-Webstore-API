@@ -46,12 +46,8 @@ describe('User Model', () => {
             password: "xxxxx"
         });
 
-
         const result = await user.getUsers();
-        expect(result[0].first_name).toEqual('first');
-        expect(result[0].last_name).toEqual('last');
-        expect(result[0].username).toEqual('test_user');
-
+        expect(result).toBeDefined()
         user.deleteUser(test_user.id);
     });
  
@@ -85,9 +81,9 @@ describe('User Model', () => {
 
         await user.deleteUser(test_user.id);
 
-        const result = await user.getUsers();
+        const result = await user.getUserById(test_user.id);
     
-        expect(result).toEqual([]);
+        expect(result).toBeUndefined;
 
     });
 

@@ -6,8 +6,6 @@ export const authToken = (req: Request, res: Response, next: NextFunction) => {
     const authHead: string | undefined = req.headers.authorization;
     const token: string = authHead ? authHead : '';
 
-    console.log(token);
-
     const decoded: string | object = jsonwebtoken.verify(
       token,
       process.env.TOKEN_SECRET as string

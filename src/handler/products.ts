@@ -45,7 +45,6 @@ const show_by_cat = async (_req: Request, res: Response) => {
 // Create product
 const create = async (_req: Request, res: Response) => {
   const createdProduct: Product = await product_store.createProduct(_req.body);
-  console.log(_req.body);
   return res.json(createdProduct);
 };
 

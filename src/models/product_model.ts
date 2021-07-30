@@ -6,6 +6,13 @@ export type Product = {
   category: string;
 };
 
+export type ProductCreated = {
+  name: string;
+  price: number;
+  category: string;
+  id: number;
+};
+
 export class ProductStore {
   // define table
   table: string = 'products';
@@ -58,7 +65,7 @@ export class ProductStore {
     }
   }
 
-  async createProduct(p: Product): Promise<Product> {
+  async createProduct(p: Product): Promise<ProductCreated> {
     try {
       const sql = `INSERT INTO ${this.table} (name, price, category) VALUES($1, $2, $3) RETURNING *`;
       // @ts-ignore
@@ -78,7 +85,7 @@ export class ProductStore {
 
   async deleteProduct(id: number): Promise<Product> {
     try {
-      const sql = `DELETE FROM ${this.table} WHERE id=($1)`;
+      const sql = `DELETE FROM ${this.table} WHERE id=($1) RETURNING *`;
       // @ts-ignore
       const conn = await Client.connect();
 

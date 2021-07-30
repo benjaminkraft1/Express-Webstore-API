@@ -1,4 +1,3 @@
-import { User, UserStore } from '../user_model';
 import { ProductStore } from '../product_model';
 
 /******************************************************** */
@@ -35,43 +34,58 @@ describe('Product Model', () => {
             category: "test_cat"
         });
 
-        expect(result.name).toEqual('Test Product');
-        expect(result.price).toBeCloseTo(1.10);
-        expect(result.category).toEqual('test_cat');
-
+        expect(result.id).toBeDefined();
     });
 
     it('getProducts method should return a list of products', async () => {
+        await product.createProduct({
+            name: "Test Product",
+            price: 1.10,
+            category: "test_cat"
+        });
 
         const result = await product.getProducts();
-        expect(result[0].name).toEqual('Test Product');
-        expect(result[0].price).toBeCloseTo(1.10);
-        expect(result[0].category).toEqual('test_cat');
+        expect(result.length).toBeGreaterThan(0)
     });
 
     it('getProductsById method should return a product by id', async () => {
+        const p = await product.createProduct({
+            name: "Test Product getProductsById",
+            price: 1.10,
+            category: "test_cat"
+        });
 
-        const result = await product.getProductById(1);
-        expect(result.name).toEqual('Test Product');
-        expect(result.price).toBeCloseTo(1.10);
-        expect(result.category).toEqual('test_cat');
+        const result = await product.getProductById(p.id);
+        expect(result.name).toEqual('Test Product getProductsById');
     });
  
     it('getProductsByCat method should return a list of products in a specific category', async () => {
+        const p = await product.createProduct({
+            name: "Test Product getProductsByCat",
+            price: 1.10,
+            category: "test_cat_test"
+        });
 
-        const result = await product.getProductsByCat('test_cat');
-        expect(result[0].name).toEqual('Test Product');
-        expect(result[0].price).toBeCloseTo(1.10);
-        expect(result[0].category).toEqual('test_cat');
+        const result = await product.getProductsByCat('test_cat_test');
+        expect(result[0].name).toEqual('Test Product getProductsByCat');
     });
    
 
     it('deleteProduct method should remove the product', async () => {
-        await product.deleteProduct(1);
 
-        const result = await product.getProducts();
+        const p = await product.createProduct({
+            name: "Test Product delete",
+            price: 1.10,
+            category: "test_cat"
+        });
+
+        expect(p.id).toBeDefined();
+
+        await product.deleteProduct(p.id);
+
+        const result = await product.getProductById(p.id);
     
-        expect(result).toEqual([]);
+        expect(result).toBeUndefined();
 
     });
 

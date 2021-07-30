@@ -7,6 +7,14 @@ export type Order = {
   status: string;
 };
 
+export type OrderCreated = {
+  product_id: number;
+  quantity: number;
+  user_id: number;
+  status: string;
+  id: number;
+};
+
 export class OrderStore {
   // define table
   table: string = 'orders';
@@ -41,7 +49,7 @@ export class OrderStore {
   }
 
   // create an order
-  async createOrder(order: Order): Promise<Order> {
+  async createOrder(order: Order): Promise<OrderCreated> {
     try {
       // eslint-disable-next-line camelcase
       const { product_id, quantity, user_id, status } = order;
@@ -57,8 +65,6 @@ export class OrderStore {
         status
       ]);
       conn.release();
-
-      console.log(result.rows);
 
       return result.rows[0];
     } catch (err) {

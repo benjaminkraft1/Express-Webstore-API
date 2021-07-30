@@ -45,8 +45,6 @@ const createOrder = async (_req: Request, res: Response) => {
   };
 
   try {
-    console.log(new_order);
-
     const newOrder = await order.createOrder(new_order);
 
     res.json(newOrder);
