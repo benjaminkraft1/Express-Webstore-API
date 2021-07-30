@@ -1,8 +1,6 @@
-import { getAutomaticTypeDirectiveNames } from 'typescript';
 import { OrderStore } from '../order_model';
 import { UserStore } from '../user_model';
 import { ProductStore } from '../product_model';
-import { setupMaster } from 'cluster';
 
 /******************************************************** */
 // Handler
