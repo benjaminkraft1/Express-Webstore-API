@@ -25,7 +25,7 @@ if (ENV === 'test') {
   });
 }
 
-if(ENV === 'dev') {
+if (ENV === 'dev') {
   client = new Pool({
     host: POSTGRES_HOST,
     database: POSTGRES_DB,

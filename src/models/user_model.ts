@@ -76,7 +76,7 @@ export class UserStore {
         username: username,
         token: hash,
         id: id
-        };
+      };
 
       return return_value;
     } catch (err) {
