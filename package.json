@@ -50,7 +50,6 @@
     "@types/jasmine": "^3.7.7",
     "axios": "^0.21.1",
     "csvtojson": "^2.0.10",
-    "db-drop": "^1.2.0",
     "db-migrate-pg": "^1.2.2",
     "ejs": "^3.1.6",
     "jasmine": "^3.7.0",
