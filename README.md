@@ -4,6 +4,24 @@ This Project was created for the udacity full stack javascript developer project
 ## Install dependencies
 ```bash
 npm install
+
+npm install -g db-migrate
+```
+
+## Setup dotenv
+Create a file `.env` to the root directory and add the following.
+This would normally not be included here, but is required to pass the udacity project.
+
+```
+POSTGRES_HOST=127.0.0.1
+POSTGRES_DB=webstore_db
+POSTGRES_TEST_DB=webstore_test
+POSTGRES_USER=webstore_user
+POSTGRES_PASSWORD=webstore_pass
+BCRYPT_PASSWORD=crypt_password_dev
+TOKEN_SECRET=token_pass
+SALT_ROUNDS=10
+ENV=dev
 ```
 
 ## Setup Database
@@ -38,7 +56,7 @@ db-migrate up
 ```
 
 # Run the server
-start server
+The server is started at localhost:3000 using the folowing command.
 ```
 $ npm run start
 ```
@@ -49,8 +67,8 @@ run tests
 npm run test
 ```
 
-
 # API
+The Database is running at `http://localhost:3000`
 
 ## Users
 User Fields
@@ -152,6 +170,83 @@ Delete Order [TOKEN REQUIRED]
 ```
 DELETE http://localhost:3000/orders/:id
 ```
+
+# Database Schema
+##  List of relations
+```
+ Schema |         Name          |   Type   |     Owner     
+--------+-----------------------+----------+---------------
+ public | migrations            | table    | webstore_user
+ public | migrations_id_seq     | sequence | webstore_user
+ public | order_products        | table    | webstore_user
+ public | order_products_id_seq | sequence | webstore_user
+ public | orders                | table    | webstore_user
+ public | orders_id_seq         | sequence | webstore_user
+ public | products              | table    | webstore_user
+ public | products_id_seq       | sequence | webstore_user
+ public | users                 | table    | webstore_user
+ public | users_id_seq          | sequence | webstore_user
+```
+
+## Table "public.order_products"
+```
+   Column   |  Type   | Collation | Nullable |                  Default                   
+------------+---------+-----------+----------+--------------------------------------------
+ id         | integer |           | not null | nextval('order_products_id_seq'::regclass)
+ quantity   | integer |           |          | 
+ order_id   | bigint  |           |          | 
+ product_id | bigint  |           |          | 
+Indexes:
+    "order_products_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "order_products_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id)
+    "order_products_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id)
+```
+
+## Table "public.orders"
+```
+ Column  |     Type     | Collation | Nullable |              Default               
+---------+--------------+-----------+----------+------------------------------------
+ id      | integer      |           | not null | nextval('orders_id_seq'::regclass)
+ user_id | integer      |           |          | 
+ status  | order_status |           | not null | 
+Indexes:
+    "orders_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+Referenced by:
+    TABLE "order_products" CONSTRAINT "order_products_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id)
+```
+
+## Table "public.products"
+```
+  Column  |         Type          | Collation | Nullable |               Default                
+----------+-----------------------+-----------+----------+--------------------------------------
+ id       | integer               |           | not null | nextval('products_id_seq'::regclass)
+ name     | character varying(50) |           | not null | 
+ price    | numeric               |           | not null | 
+ category | character varying(50) |           |          | 
+Indexes:
+    "products_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "order_products" CONSTRAINT "order_products_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id)
+```
+
+## Table "public.users"
+```
+   Column   |          Type          | Collation | Nullable |              Default              
+------------+------------------------+-----------+----------+-----------------------------------
+ id         | integer                |           | not null | nextval('users_id_seq'::regclass)
+ first_name | character varying(100) |           |          | 
+ last_name  | character varying(100) |           |          | 
+ username   | character varying(100) |           |          | 
+ password   | character varying      |           |          | 
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "orders" CONSTRAINT "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+```
+
 
 # JSON Web Token Authentication
 The token is returned when adding a new user in the response.
