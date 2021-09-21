@@ -1,4 +1,3 @@
-/* Replace with your SQL commands */
 CREATE TABLE products(
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
@@ -19,10 +18,13 @@ CREATE TYPE order_status AS ENUM ('active', 'complete');
 CREATE TABLE orders(
     id SERIAL PRIMARY KEY,
     user_id INTEGER,
-    product_id INTEGER,
-    quantity INTEGER DEFAULT 1,
     status order_status NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE 
 );
 
+CREATE TABLE order_products (
+    id SERIAL PRIMARY KEY,
+    quantity integer,
+    order_id bigint REFERENCES orders(id),
+    product_id bigint REFERENCES products(id)
+);

@@ -37,16 +37,8 @@ describe('Product Model', () => {
       password: 'xxxxx'
     });
 
-    const p = await product.createProduct({
-      name: 'Test Product Order',
-      price: 1.1,
-      category: 'test_cat'
-    });
-
     // Create Order
     const result = await order.createOrder({
-      product_id: p.id,
-      quantity: 1,
       user_id: u1.id,
       status: 'active'
     });
@@ -63,22 +55,14 @@ describe('Product Model', () => {
       password: 'xxxxx'
     });
 
-    const p = await product.createProduct({
-      name: 'Test Product Order',
-      price: 1.1,
-      category: 'test_cat'
-    });
-
     // Create complete Order
     const o = await order.createOrder({
-      product_id: p.id,
-      quantity: 1,
       user_id: u1.id,
       status: 'complete'
     });
 
     const result = await order.getCompletedOrdersByUserId(u1.id);
-    expect(result[0].product_id).toEqual(p.id);
+    expect(result[0].status).toEqual(o.status);
   });
 
   it('getCurrentOrderByUserId method should return the latest active order by a user', async () => {
@@ -90,22 +74,14 @@ describe('Product Model', () => {
       password: 'xxxxx'
     });
 
-    const p = await product.createProduct({
-      name: 'Test Product Order',
-      price: 1.1,
-      category: 'test_cat'
-    });
-
     // Create active Order
     const o = await order.createOrder({
-      product_id: p.id,
-      quantity: 1,
       user_id: u1.id,
       status: 'active'
     });
 
     const result = await order.getCurrentOrderByUserId(u1.id);
-    expect(result.product_id).toEqual(p.id);
+    expect(result.status).toEqual(o.status);
   });
 
   it('deleteOrder method should remove the order', async () => {
@@ -125,8 +101,6 @@ describe('Product Model', () => {
 
     // Create active Order
     const o = await order.createOrder({
-      product_id: p.id,
-      quantity: 1,
       user_id: u1.id,
       status: 'active'
     });

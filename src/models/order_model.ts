@@ -1,11 +1,16 @@
 import Client from '../database';
 
 export type Order = {
-  product_id: number;
-  quantity: number;
   user_id: number;
   status: string;
 };
+
+export type OrderProduct = 
+{
+    product_id: number;
+    order_id: number;
+    quantity: number;
+}
 
 export type OrderCreated = {
   product_id: number;
@@ -18,6 +23,39 @@ export type OrderCreated = {
 export class OrderStore {
   // define table
   table: string = 'orders';
+
+  // Add product to order
+  async addProduct(quantity:number, orderId:number, productId: number): Promise<Order> {
+     // get order to see if it is open
+     try {
+      const ordersql = 'SELECT * FROM orders WHERE id=($1)'
+      //@ts-ignore
+      const conn = await Client.connect()
+
+      const result = await conn.query(ordersql, [orderId])
+
+      const order = result.rows[0]
+
+      if (order.status !== "open") {
+        throw new Error(`Could not add product ${productId} to order ${orderId} because order status is ${order.status}`)
+      }
+
+      conn.release()
+    } catch (err) {
+      throw new Error(`${err}`)
+    }
+    
+    try {
+      const conn = await Client.connect();
+      const sql = `INSERT INTO  order_products (quantity, order_id, product_id) VALUES($1, $2, $3) RETOURNING *`;
+      const result = await conn.query(sql, [quantity, orderId, productId]);
+      conn.release();
+
+      return result.rows[0];
+    } catch (err) {
+      throw new Error(`Could not add product ${productId} to order ${orderId}. Error: ${err}`);
+    }
+  }
 
   // Get current order by user id
   async getCurrentOrderByUserId(userId: number): Promise<Order> {
@@ -52,14 +90,11 @@ export class OrderStore {
   async createOrder(order: Order): Promise<OrderCreated> {
     try {
       // eslint-disable-next-line camelcase
-      const { product_id, quantity, user_id, status } = order;
+      const { user_id, status } = order;
 
       const conn = await Client.connect();
-      const sql = `INSERT INTO ${this.table} (product_id, quantity, user_id, status) VALUES($1, $2, $3, $4) RETURNING *`;
+      const sql = `INSERT INTO ${this.table} (user_id, status) VALUES($1, $2) RETURNING *`;
       const result = await conn.query(sql, [
-        // eslint-disable-next-line camelcase
-        product_id,
-        quantity,
         // eslint-disable-next-line camelcase
         user_id,
         status
